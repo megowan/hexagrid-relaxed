@@ -46,3 +46,7 @@ neighbors list. All cells now have clockwise lists of neighbors.
   need to reverse the neighbor list because every quad will be guaranteed to have clockwise points.
 * Use the grid to make mazes!
 * Use the grid to implement a map exploration algorithm!
+
+  ![Default](/images/screen1.png "Default grid")
+  ![Relaxed Grid](/images/screen2.png "Relaxed grid")
+  ![Relaxed Edges](/images/screen3.png "Grid with relaxed edges")

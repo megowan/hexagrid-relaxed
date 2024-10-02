@@ -6,18 +6,13 @@ var hexagrid: Hexagrid
 var draw_positions: bool = false
 var draw_sector: bool = false
 
-var highlight_quad: int = -1
-
 @export var side_color: Color = Color(0.18, 0.18, 0.18)
 @export var interior_color: Color = Color(.25, .25, .25)
 @export var line_color: Color = Color(.7, .7, .7)
 @export var triangle_color: Color = Color("A0A0A0")
 @export var quad_color: Color = Color("FFFFFF")
 
-var neighbor_index: int = 0
-func next_neighbor_index():
-	neighbor_index = (neighbor_index + 1) % 4
-	
+
 # Rebuild render instructions with CanvasItem.queue_redraw()
 func _draw():
 	if hexagrid == null:
@@ -62,34 +57,3 @@ func _draw():
 				var neighbor_point = hexagrid.points[neighbor_point_index]
 				var neighbor_screen_point = hexagrid.world_to_screen(neighbor_point.position)
 				draw_line(screen_point, neighbor_screen_point, line_color, 2)
-
-	if self.highlight_quad > 0:
-		var quad = hexagrid.quads[highlight_quad]
-		var quad_array : PackedVector2Array = []
-		var a = hexagrid.world_to_screen(hexagrid.points[quad.a].position)
-		var b = hexagrid.world_to_screen(hexagrid.points[quad.b].position)
-		var c = hexagrid.world_to_screen(hexagrid.points[quad.c].position)
-		var d = hexagrid.world_to_screen(hexagrid.points[quad.d].position)
-		quad_array.append(a)
-		quad_array.append(b)
-		quad_array.append(c)
-		quad_array.append(d)
-		draw_polygon(quad_array, [quad_color])
-
-		#print(quad.neighbors)
-		for i in quad.neighbors.size():
-			var nq = quad.neighbors[i]
-			#print(nq)
-			var nquad = hexagrid.quads[nq]
-			var nquad_array : PackedVector2Array = []
-			var na = hexagrid.world_to_screen(hexagrid.points[nquad.a].position)
-			var nb = hexagrid.world_to_screen(hexagrid.points[nquad.b].position)
-			var nc = hexagrid.world_to_screen(hexagrid.points[nquad.c].position)
-			var nd = hexagrid.world_to_screen(hexagrid.points[nquad.d].position)
-			nquad_array.append(na)
-			nquad_array.append(nb)
-			nquad_array.append(nc)
-			nquad_array.append(nd)
-			#print(nquad_array)
-			var color = side_color if i == self.neighbor_index else triangle_color
-			draw_polygon(nquad_array, [color])

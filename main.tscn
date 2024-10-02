@@ -75,6 +75,10 @@ max_value = 12.0
 value = 6.0
 tick_count = 11
 
+[node name="Sides_Value_Label" type="Label" parent="VFlowContainer/Sides_Container"]
+layout_mode = 2
+text = "6"
+
 [node name="Seed_Container" type="HFlowContainer" parent="VFlowContainer"]
 layout_mode = 2
 
@@ -105,6 +109,9 @@ min_value = 1.0
 max_value = 20.0
 value = 6.0
 
+[node name="Grouping_Value_Label" type="Label" parent="VFlowContainer/Grouping_Container"]
+layout_mode = 2
+
 [node name="Relax_Check" type="CheckBox" parent="VFlowContainer"]
 layout_mode = 2
 text = "Relax"
@@ -123,8 +130,10 @@ layout_mode = 2
 text = "Draw Sectors"
 
 [connection signal="drag_ended" from="VFlowContainer/Sides_Container/Sides_Slider" to="." method="_on_sides_slider_drag_ended"]
+[connection signal="value_changed" from="VFlowContainer/Sides_Container/Sides_Slider" to="." method="_on_sides_slider_value_changed"]
 [connection signal="drag_ended" from="VFlowContainer/Seed_Container/Seed_Slider" to="." method="_on_seed_slider_drag_ended"]
 [connection signal="drag_ended" from="VFlowContainer/Grouping_Container/Grouping_Slider" to="." method="_on_grouping_slider_drag_ended"]
+[connection signal="value_changed" from="VFlowContainer/Grouping_Container/Grouping_Slider" to="." method="_on_grouping_slider_value_changed"]
 [connection signal="toggled" from="VFlowContainer/Relax_Check" to="." method="_on_relax_check_toggled"]
 [connection signal="toggled" from="VFlowContainer/Relax_Side_Check" to="." method="_on_relax_side_check_toggled"]
 [connection signal="toggled" from="VFlowContainer/Draw_Point_Check" to="." method="_on_draw_point_check_toggled"]

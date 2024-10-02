@@ -62,7 +62,6 @@ func init(grid_side_size: int, random_seed: int, iteration_count: int):
 	# points
 	for x: int in range(0, side_size * 2 - 1):
 		var height: int = (side_size + x) if (x < side_size) else (side_size * 3 - 2 - x)
-		# var delta_height: float = (float)side_size - height * 0.5f
 		var delta_height: float = self.side_size - height * 0.5
 		for y: int in range(0, height):
 			var is_side: bool = false
@@ -113,10 +112,8 @@ func init(grid_side_size: int, random_seed: int, iteration_count: int):
 		# no valid triangles found. Don't generate any quads
 		if search_count == search_iteration_count:
 			break
-		#print("Triangle ", tri_index)
 		adjacents = get_adjacent_triangles(tri_index)
 		if adjacents.size() > 0:
-			# print("Adjacents ", adjacents)
 			var i1: int = tri_index
 			var i2: int = adjacents[0]
 			var indices: Array[int] = [
@@ -198,46 +195,50 @@ func init(grid_side_size: int, random_seed: int, iteration_count: int):
 					points[index_2].quads.append(i) 
 
 	# quad neighbors
-	print("Finding neighbors for quads ", base_quad_count, " - ", quads.size())
 	for i in range(base_quad_count, quads.size()): # only look at sub-quads
 		var quad: GridQuad = quads[i]
 		quad.neighbors = self.get_adjacent_quads(i)
 
-
 func relax():
+	var new_position = []
 	for point in points:
 		if point.side:
+			new_position.append(point.position)
 			continue
 		var sum: Vector2 = Vector2.ZERO
 		for neighbor in point.neighbors:
 			sum += points[neighbor].position
 		sum /= (float)(point.neighbors.size())
-		point.position = sum
+		new_position.append(sum)
+	for i in points.size():
+		points[i].position = new_position[i]
 
 
 func relax_side():
+	var new_position = []
 	var radius: float = (float)(side_size) - 1.0
 	var center: Vector2 = Vector2(0.0, (side_size * 2 - 1) * 0.5)
 	
 	for i in points.size():
 		if !points[i].side:
+			new_position.append(points[i].position)
 			continue
 		var d: Vector2 = points[i].position - center
 		var distance = radius - sqrt((d.x * d.x) + (d.y * d.y))
-		points[i].position += (d * distance) * 0.1
+		new_position.append(points[i].position + (d * distance) * 0.1)
+	for i in points.size():
+		points[i].position = new_position[i]
 
 
 func world_to_screen(p: Vector2) -> Vector2:
-	#var screen_size: Vector2i = DisplayServer.screen_get_size()
 	var screen_size: Vector2i = get_window().get_size()
-	var ratio: float = screen_size.aspect() # note that I may need the reciprocal
+	var ratio: float = screen_size.aspect()
 	var res: Vector2 = Vector2(p) / ((float)(side_size * 3.5))
 	res.y *= ratio
 	res.x *= screen_size.x
 	res.y *= screen_size.y
 	res += Vector2(screen_size.x / 2.0, 0)
 	return res
-
 
 func subdivide(index: Array[int], middles: Dictionary, index_center: int):
 	var count: int = index.size()
@@ -267,13 +268,14 @@ func subdivide(index: Array[int], middles: Dictionary, index_center: int):
 		points.append(center_point)
 		
 		quads.append(quad)
+		# TODO: When a quad is complete, look at the cross product of vectors [a,b] and [b,c]
+		# if negative, then the quad is counter-clockwise. Reverse the order of points
 
 
 func get_adjacent_triangles(tri_index: int) -> Array[int]:
 	var adj: Array[int] = []
 	var triangle: GridTriangle = triangles[tri_index]
 	var ref: Array[int] = [triangle.a, triangle.b, triangle.c]
-	#print("ref: ", ref)
 
 	# check every other valid triangle
 	for i in triangles.size():
@@ -327,13 +329,7 @@ func get_adjacent_quads(quad_index: int) -> Array[int]:
 				adj.append(j)
 				adj_pos.append(points[candidate.center].position - quad_position)
 				break
-	# a quad has 2, 3, or 4 neighbors
-	# if there are two neighbors, then the order is both clockwise and counter-clockwise. Do nothing.
-	# if there are three neighbors, then the angle between sides may have one greater than 180
-	# i.e. one positive cross product and two negative, or two positive and one negative
-	# Ignore the outlier to determine clock-wise-ness
-	# If there are four neighbors, no angle will be greater than 180, so cross products will be
-	# either all positive or all negative
+
 	if adj_pos.size() > 2:
 		var sum: int = 0
 		for i in adj_pos.size():
